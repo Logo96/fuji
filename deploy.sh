@@ -13,7 +13,9 @@ echo "SERVICE_NAME: $SERVICE_NAME"
 echo "BUCKET_NAME: $BUCKET_NAME"
 echo "DATASET_NAME: $DATASET_NAME"
 echo "TABLE_NAME: $TABLE_NAME"
-read -p "Do you want to continue? (y/n) " -n 1 -r
+echo "REGION: $REGION"
+echo "GCS_BATCH_TIMEOUT_SECS: $GCS_BATCH_TIMEOUT_SECS"
+read -p "Do you want to continue? " -n 1 -r
 echo
 
 # Create Cloud Storage bucket if it doesn't exist
@@ -30,7 +32,7 @@ gcloud run deploy $SERVICE_NAME \
 	--image simonmok/uji:main \
 	--allow-unauthenticated \
 	--region $REGION \
-	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME,GCS_BATCH_TIMEOUT_SECS=5
+	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME
 
 # Create BigQuery dataset if it doesn't exist
 if ! bq show $DATASET_NAME &>/dev/null; then
