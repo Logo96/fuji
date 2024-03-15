@@ -16,7 +16,7 @@ sinks:
     inputs:
       - modify
     type: gcp_cloud_storage
-    bucket: vllm-usage-stats
+    bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json
     framing:
