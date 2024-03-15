@@ -1,3 +1,6 @@
+api:
+  enabled: true
+
 sources:
   in:
     type: http_server
