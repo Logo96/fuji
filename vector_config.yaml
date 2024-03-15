@@ -35,5 +35,5 @@ sinks:
     framing:
       method: newline_delimited
     batch:
-      timeout_secs: ${GCS_BATCH_TIMEOUT_SECS:300}
+      timeout_secs: ${GCS_BATCH_TIMEOUT_SECS:-300}
     key_prefix: year=%Y/month=%m/day=%d/
