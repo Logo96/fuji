@@ -1,6 +1,3 @@
-api:
-  enabled: true
-
 sources:
   in:
     type: http_server
@@ -24,4 +21,4 @@ sinks:
       codec: json
     framing:
       method: newline_delimited
-    key_prefix: year=%Y/
+    key_prefix: year=%Y/month=%m/day=%d

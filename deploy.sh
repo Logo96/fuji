@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Set variables
-SERVICE_NAME="your-service-name"
-BUCKET_NAME="your-bucket-name"
+# Use environment variables or prompt the user
+SERVICE_NAME=${SERVICE_NAME:-$(read -p "Enter your service name: " SERVICE_NAME && echo $SERVICE_NAME)}
+BUCKET_NAME=${BUCKET_NAME:-$(read -p "Enter your bucket name: " BUCKET_NAME && echo $BUCKET_NAME)}
+DATASET_NAME=${DATASET_NAME:-$(read -p "Enter your dataset name: " DATASET_NAME && echo $DATASET_NAME)}
+TABLE_NAME=${TABLE_NAME:-$(read -p "Enter your table name: " TABLE_NAME && echo $TABLE_NAME)}
+
 REGION="us-central1"
-DATASET_NAME="your-dataset-name"
-TABLE_NAME="your-table-name"
 
 # Create Cloud Storage bucket if it doesn't exist
 if ! gsutil ls -b gs://$BUCKET_NAME &>/dev/null; then
@@ -34,7 +35,7 @@ fi
 # Create BigQuery external table if it doesn't exist
 if ! bq show $DATASET_NAME.$TABLE_NAME &>/dev/null; then
   echo "Creating BigQuery external table $DATASET_NAME.$TABLE_NAME..."
-  bq mkdef --source_format=JSON --autodetect=true \
+  bq mkdef --source_format=NEWLINE_DELIMITED_JSON --autodetect=true \
     gs://$BUCKET_NAME > /tmp/uji-table-def
 
   cat /tmp/uji-table-def

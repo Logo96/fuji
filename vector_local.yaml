@@ -1,0 +1,23 @@
+api:
+  enabled: true
+
+sources:
+  in:
+    type: http_server
+    address: 127.0.0.1:8888
+
+transforms:
+  modify:
+    type: remap
+    inputs:
+      - in
+    source: |
+      . = parse_json!(string!(.message))
+
+sinks:
+  console_out:
+    type: console
+    encoding:
+      codec: json
+    inputs:
+      - modify
