@@ -14,7 +14,9 @@ transforms:
     type: sampler
     inputs:
       - modify
-    rate: 2
+    rate: 6 # 1 out of 6 events will be passed through
+    source: |
+      . = parse_json!(string!(.message))
 
 sinks:
   console_out:
