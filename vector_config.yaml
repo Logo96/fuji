@@ -14,7 +14,7 @@ transforms:
     type: sampler
     inputs:
       - modify
-    rate: ${SAMPLER_RATE:10}
+    rate: 2
 
 sinks:
   console_out:

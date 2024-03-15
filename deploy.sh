@@ -45,7 +45,7 @@ fi
 if ! bq show $DATASET_NAME.$TABLE_NAME &>/dev/null; then
   echo "Creating BigQuery external table $DATASET_NAME.$TABLE_NAME..."
   bq mkdef --source_format=NEWLINE_DELIMITED_JSON --autodetect=true \
-    gs://$BUCKET_NAME > /tmp/uji-table-def
+    "gs://$BUCKET_NAME/*" > /tmp/uji-table-def
 
   cat /tmp/uji-table-def
 
