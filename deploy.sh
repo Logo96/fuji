@@ -8,6 +8,14 @@ TABLE_NAME=${TABLE_NAME:-$(read -p "Enter your table name: " TABLE_NAME && echo 
 
 REGION="us-central1"
 
+# echo all the variables, and wait for confirmation
+echo "SERVICE_NAME: $SERVICE_NAME"
+echo "BUCKET_NAME: $BUCKET_NAME"
+echo "DATASET_NAME: $DATASET_NAME"
+echo "TABLE_NAME: $TABLE_NAME"
+read -p "Do you want to continue? (y/n) " -n 1 -r
+echo
+
 # Create Cloud Storage bucket if it doesn't exist
 if ! gsutil ls -b gs://$BUCKET_NAME &>/dev/null; then
   echo "Creating bucket $BUCKET_NAME..."
@@ -22,7 +30,7 @@ gcloud run deploy $SERVICE_NAME \
 	--image simonmok/uji:main \
 	--allow-unauthenticated \
 	--region $REGION \
-	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME
+	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME,GCS_BATCH_TIMEOUT_SECS=5
 
 # Create BigQuery dataset if it doesn't exist
 if ! bq show $DATASET_NAME &>/dev/null; then

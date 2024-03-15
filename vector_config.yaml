@@ -10,8 +10,19 @@ transforms:
       - in
     source: |
       . = parse_json!(string!(.message))
+  sample:
+    type: sampler
+    inputs:
+      - modify
+    rate: ${SAMPLER_RATE:10}
 
 sinks:
+  console_out:
+    type: console
+    encoding:
+      codec: json
+    inputs:
+      - sample
   out:
     inputs:
       - modify
@@ -21,4 +32,6 @@ sinks:
       codec: json
     framing:
       method: newline_delimited
+    batch:
+      timeout_secs: ${GCS_BATCH_TIMEOUT_SECS:300}
     key_prefix: year=%Y/month=%m/day=%d
