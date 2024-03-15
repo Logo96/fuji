@@ -14,7 +14,6 @@ echo "BUCKET_NAME: $BUCKET_NAME"
 echo "DATASET_NAME: $DATASET_NAME"
 echo "TABLE_NAME: $TABLE_NAME"
 echo "REGION: $REGION"
-echo "GCS_BATCH_TIMEOUT_SECS: $GCS_BATCH_TIMEOUT_SECS"
 read -p "Do you want to continue? " -n 1 -r
 echo
 
