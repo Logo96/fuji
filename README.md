@@ -8,7 +8,7 @@ To deploy:
 SERVICE_NAME=...
 BUCKET_NAME=...
 gcloud run deploy $SERVICE_NAME \
-  --image ghcr.io/simon-mo/uji \
+  --image simonmok/uji \
   --allow-unauthenticated \
   --set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME
 ```
