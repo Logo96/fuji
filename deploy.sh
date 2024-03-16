@@ -35,8 +35,7 @@ gcloud run deploy $SERVICE_NAME \
 	--image simonmok/uji:$IMAGE_TAG \
 	--allow-unauthenticated \
 	--region $REGION \
-	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME \
-  --set-env-vars GCS_BATCH_MAX_EVENTS=2 # debugging purpose
+	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME
 
 # Create BigQuery dataset if it doesn't exist
 if ! bq show $DATASET_NAME &>/dev/null; then
