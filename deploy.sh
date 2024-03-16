@@ -7,6 +7,8 @@ DATASET_NAME=${DATASET_NAME:-$(read -p "Enter your dataset name: " DATASET_NAME 
 TABLE_NAME=${TABLE_NAME:-$(read -p "Enter your table name: " TABLE_NAME && echo $TABLE_NAME)}
 
 REGION="us-central1"
+GIT_SHA=$(git rev-parse --short HEAD)
+IMAGE_TAG=sha-$GIT_SHA
 
 # echo all the variables, and wait for confirmation
 echo "SERVICE_NAME: $SERVICE_NAME"
@@ -14,8 +16,10 @@ echo "BUCKET_NAME: $BUCKET_NAME"
 echo "DATASET_NAME: $DATASET_NAME"
 echo "TABLE_NAME: $TABLE_NAME"
 echo "REGION: $REGION"
+echo "IMAGE_TAG: $IMAGE_TAG"
 read -p "Do you want to continue? " -n 1 -r
 echo
+
 
 # Create Cloud Storage bucket if it doesn't exist
 if ! gsutil ls -b gs://$BUCKET_NAME &>/dev/null; then
@@ -28,7 +32,7 @@ fi
 # Deploy Cloud Run service if it doesn't exist
 echo "Deploying Cloud Run service $SERVICE_NAME..."
 gcloud run deploy $SERVICE_NAME \
-	--image simonmok/uji:main \
+	--image simonmok/uji:$IMAGE_TAG \
 	--allow-unauthenticated \
 	--region $REGION \
 	--set-env-vars GCS_BUCKET_NAME=$BUCKET_NAME
