@@ -4,7 +4,9 @@ api:
 sources:
   in:
     type: http_server
-    address: 127.0.0.1:8888
+    address: 127.0.0.1:8080
+    headers:
+      - "cf-*"
 
 transforms:
   modify:
@@ -12,7 +14,9 @@ transforms:
     inputs:
       - in
     source: |
-      . = parse_json!(string!(.message))
+      message_json = parse_json!(del(.message))
+      request_metadata = .
+      . = { "message": message_json, "request_metadata": request_metadata }
 
 sinks:
   console_out:
@@ -21,3 +25,4 @@ sinks:
       codec: json
     inputs:
       - modify
+      # - in

@@ -11,7 +11,9 @@ transforms:
     inputs:
       - in
     source: |
-      . = parse_json!(string!(.message))
+      message_json = parse_json!(del(.message))
+      request_metadata = .
+      . = { "message": message_json, "request_metadata": request_metadata }
   sample:
     type: sample
     inputs:
