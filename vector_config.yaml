@@ -17,7 +17,7 @@ transforms:
   sample:
     type: sample
     inputs:
-      - in
+      - modify
     rate: 6 # 1 out of 6 events will be passed through
 
 sinks:
