@@ -2,6 +2,8 @@ sources:
   in:
     type: http_server
     address: ${HOST}:${PORT}
+    headers:
+      - "cf-*" # merge cloudflare headers into the record
 
 transforms:
   modify:
