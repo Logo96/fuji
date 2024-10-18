@@ -21,18 +21,25 @@ transforms:
       - modify
     route: ${VECTOR_ROUTES:-{"default": "true"}}
 
+  set_route:
+    type: remap
+    inputs:
+      - route
+    source: |
+      .route = to_string!(if exists(.type) { .type } else { "default" })
+
 sinks:
   console_out:
     type: console
     encoding:
       codec: json
     inputs:
-      - route.*
+      - set_route
 
   gcs_out:
     type: gcp_cloud_storage
     inputs:
-      - route.*
+      - set_route
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json
