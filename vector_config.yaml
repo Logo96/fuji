@@ -19,14 +19,9 @@ transforms:
     type: route
     inputs:
       - parse_json
-    route: ${VECTOR_ROUTES:-{"default": "true"}}
-
-  set_route:
-    type: remap
-    inputs:
-      - route.*
-    source: |
-      .route = to_string!(if exists(.message.type) { .message.type } else { "default" })
+    route:
+      logs: '.message.type == "logs"'
+      metrics: '.message.type == "metrics"'
 
 sinks:
   console_out:
@@ -34,7 +29,7 @@ sinks:
     encoding:
       codec: json
     inputs:
-      - set_route
+      - route
 
   gcs_out:
     type: gcp_cloud_storage

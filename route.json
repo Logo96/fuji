@@ -1,7 +1,4 @@
 {
-    "analytics": ".message.type == \"analytics\"",
     "logs": ".message.type == \"logs\"",
-    "metrics": ".message.type == \"metrics\"",
-    "errors": ".message.level == \"error\"",
-    "warnings": ".message.level == \"warn\""
+    "metrics": ".message.type == \"metrics\""
 }
