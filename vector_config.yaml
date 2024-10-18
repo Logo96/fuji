@@ -14,11 +14,12 @@ transforms:
       message_json = parse_json!(del(.message))
       request_metadata = .
       . = { "message": message_json, "request_metadata": request_metadata }
-  sample:
-    type: sample
+
+  route:
+    type: route
     inputs:
       - modify
-    rate: 1 # 1 out of 1 events will be passed through
+    route: ${VECTOR_ROUTES:-{"default": "true"}}
 
 sinks:
   console_out:
@@ -26,17 +27,18 @@ sinks:
     encoding:
       codec: json
     inputs:
-      - sample
-  out:
-    inputs:
-      - modify
+      - route.*
+
+  gcs_out:
     type: gcp_cloud_storage
+    inputs:
+      - route.*
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json
     framing:
       method: newline_delimited
+    key_prefix: "{{route}}/year=%Y/month=%m/day=%d/"
     batch:
       max_events: ${GCS_BATCH_MAX_EVENTS:-1000}
       timeout_secs: ${GCS_BATCH_TIMEOUT_SECS:-300}
-    key_prefix: year=%Y/month=%m/day=%d/
