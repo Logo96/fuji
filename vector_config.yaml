@@ -6,7 +6,7 @@ sources:
       - "*"
 
 transforms:
-  modify:
+  parse_json:
     type: remap
     inputs:
       - in
@@ -18,15 +18,16 @@ transforms:
   route:
     type: route
     inputs:
-      - modify
+      - parse_json
     route: ${VECTOR_ROUTES:-{"default": "true"}}
+    drop_unmatched: false
 
   set_route:
     type: remap
     inputs:
-      - route
+      - route.*
     source: |
-      .route = to_string!(if exists(.type) { .type } else { "default" })
+      .route = to_string!(if exists(.message.type) { .message.type } else { "default" })
 
 sinks:
   console_out:
