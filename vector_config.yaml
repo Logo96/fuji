@@ -14,14 +14,18 @@ transforms:
       message_json = parse_json!(del(.message))
       request_metadata = .
       . = { "message": message_json, "request_metadata": request_metadata }
-
-  route:
+  router:
     type: route
     inputs:
       - parse_json
     route:
       logs: '.message.type == "logs"'
       metrics: '.message.type == "metrics"'
+  sample:
+    type: sample
+    inputs:
+      - router
+    rate: 1 # 1 out 1 events will be passed through
 
 sinks:
   console_out:
@@ -29,12 +33,11 @@ sinks:
     encoding:
       codec: json
     inputs:
-      - route
-
-  gcs_out:
+      - sample
+  out:
     type: gcp_cloud_storage
     inputs:
-      - set_route
+      - router
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json
