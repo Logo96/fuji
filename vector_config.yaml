@@ -14,17 +14,34 @@ transforms:
       message_json = parse_json!(del(.message))
       request_metadata = .
       . = { "message": message_json, "request_metadata": request_metadata }
+
   router:
     type: route
     inputs:
       - parse_json
     route:
-      logs: '.message.type == "logs"'
-      metrics: '.message.type == "metrics"'
+      convs: '.message.type == "convs"'
+      votes: '.message.type == "votes"'
+
+  set_route_convs:
+    type: remap
+    inputs:
+      - router.convs
+    source: |
+      .route = "convs"
+
+  set_route_votes:
+    type: remap
+    inputs:
+      - router.votes
+    source: |
+      .route = "votes"
+
   sample:
     type: sample
     inputs:
-      - router
+      - set_route_convs
+      - set_route_votes
     rate: 1 # 1 out 1 events will be passed through
 
 sinks:
@@ -34,10 +51,12 @@ sinks:
       codec: json
     inputs:
       - sample
+
   out:
     type: gcp_cloud_storage
     inputs:
-      - router
+      - set_route_convs
+      - set_route_votes
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json

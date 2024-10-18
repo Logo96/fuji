@@ -6,10 +6,10 @@ sources:
     type: http_server
     address: 127.0.0.1:8080
     headers:
-      - "cf-*"
+      - "*"
 
 transforms:
-  modify:
+  parse_json:
     type: remap
     inputs:
       - in
@@ -18,11 +18,43 @@ transforms:
       request_metadata = .
       . = { "message": message_json, "request_metadata": request_metadata }
 
+  router:
+    type: route
+    inputs:
+      - parse_json
+    route:
+      convs: '.message.type == "convs"'
+      votes: '.message.type == "votes"'
+
+  set_route_convs:
+    type: remap
+    inputs:
+      - router.convs
+    source: |
+      .route = "convs"
+
+  set_route_votes:
+    type: remap
+    inputs:
+      - router.votes
+    source: |
+      .route = "votes"
+
 sinks:
   console_out:
     type: console
     encoding:
       codec: json
     inputs:
-      - modify
-      # - in
+      - set_route_convs
+      - set_route_votes
+
+  file_out:
+    type: file
+    inputs:
+      - set_route_convs
+      - set_route_votes
+    path: "./local_gcs_simulation/{{route}}/year=%Y/month=%m/day=%d/vector-%Y-%m-%d-%H.log"
+    encoding:
+      codec: json
+    compression: none

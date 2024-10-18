@@ -1,4 +1,0 @@
-{
-    "logs": ".message.type == \"logs\"",
-    "metrics": ".message.type == \"metrics\""
-}
