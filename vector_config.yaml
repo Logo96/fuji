@@ -20,7 +20,6 @@ transforms:
     inputs:
       - parse_json
     route: ${VECTOR_ROUTES:-{"default": "true"}}
-    drop_unmatched: false
 
   set_route:
     type: remap
