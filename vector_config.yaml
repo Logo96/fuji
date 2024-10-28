@@ -13,7 +13,7 @@ transforms:
     source: |
       message_json = parse_json!(del(.message))
       request_metadata = .
-      . = { "message": message_json, "request_metadata": request_metadata }
+      . = { "message": message_json }
 
   router:
     type: route
