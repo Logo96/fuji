@@ -11,38 +11,36 @@ transforms:
     inputs:
       - in
     source: |
-      message_json = parse_json!(del(.message))
-      request_metadata = .
-      . = { "message": message_json }
+      .message = parse_json!(.message) # Parses the 'message' field without restructuring
 
   router:
     type: route
     inputs:
       - parse_json
     route:
-      convs: '.message.type == "convs"'
-      votes: '.message.type == "votes"'
+      voting_logs: '.message.type == "leftvote" || .message.type == "rightvote" || .message.type == "tievote" || .message.type == "bothbad_vote"'
+      chat_logs: 'exists(.message.request_id)'
 
-  set_route_convs:
+  set_route_voting:
     type: remap
     inputs:
-      - router.convs
+      - router.voting_logs
     source: |
-      .route = "convs"
+      .route = "voting"
 
-  set_route_votes:
+  set_route_chat:
     type: remap
     inputs:
-      - router.votes
+      - router.chat_logs
     source: |
-      .route = "votes"
+      .route = "chat"
 
   sample:
     type: sample
     inputs:
-      - set_route_convs
-      - set_route_votes
-    rate: 1 # 1 out 1 events will be passed through
+      - set_route_voting
+      - set_route_chat
+    rate: 1 # 1 out of 1 events will be passed through
 
 sinks:
   console_out:
@@ -55,8 +53,8 @@ sinks:
   out:
     type: gcp_cloud_storage
     inputs:
-      - set_route_convs
-      - set_route_votes
+      - set_route_voting
+      - set_route_chat
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json
