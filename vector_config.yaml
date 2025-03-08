@@ -11,46 +11,36 @@ transforms:
     inputs:
       - in
     source: |
-      .message = parse_json!(.message) # Parses the 'message' field without restructuring
-
-  normalize_logs:
-    type: remap
-    inputs:
-      - parse_json
-    source: |
-      if exists(.request_id) {
-        .log_type = "chat"
-      } else {
-        .log_type = "arena"
-      }
+      .message = parse_json!(.message)
+      .source = .message.source
 
   router:
     type: route
     inputs:
-      - normalize_logs
+      - parse_json
     route:
-      arena_logs: '.log_type == "arena"'
-      chat_logs: '.log_type == "chat"'
+      search_arena_logs: '.source == "search-arena"'
+      fastchat_logs: '.source == "fastchat"'
 
-  set_route_arena_logs:
+  set_route_search_arena:
     type: remap
     inputs:
-      - router.arena_logs
+      - router.search_arena_logs
     source: |
-      .route = "arena_logs"
+      .route = "search_arena"
 
-  set_route_chat:
+  set_route_fastchat:
     type: remap
     inputs:
-      - router.chat_logs
+      - router.fastchat_logs
     source: |
-      .route = "chat"
+      .route = "fastchat"
 
   sample:
     type: sample
     inputs:
-      - set_route_arena_logs
-      - set_route_chat
+      - set_route_search_arena
+      - set_route_fastchat
     rate: 1
 
 sinks:
@@ -64,8 +54,8 @@ sinks:
   out:
     type: gcp_cloud_storage
     inputs:
-      - set_route_arena_logs
-      - set_route_chat
+      - set_route_search_arena
+      - set_route_fastchat
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json

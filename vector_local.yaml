@@ -16,38 +16,27 @@ transforms:
     source: |
       .message = parse_json!(string!(.message))
 
-  normalize_logs:
-    type: remap
-    inputs:
-      - parse_json
-    source: |
-      if exists(.request_id) {
-        .log_type = "chat"
-      } else {
-        .log_type = "arena"
-      }
-
   router:
     type: route
     inputs:
-      - normalize_logs
+      - parse_json
     route:
-      arena_logs: '.log_type == "arena"'
-      chat_logs: '.log_type == "chat"'
+      search_arena_logs: '.source == "search-arena"'
+      fastchat_logs: '.source == "fastchat"'
 
-  set_route_arena_logs:
+  set_route_search_arena:
     type: remap
     inputs:
-      - router.arena_logs
+      - router.search_arena_logs
     source: |
-      .route = "arena_logs"
+      .route = "search_arena"
 
-  set_route_chat:
+  set_route_fastchat:
     type: remap
     inputs:
-      - router.chat_logs
+      - router.fastchat_logs
     source: |
-      .route = "chat"
+      .route = "fastchat"
 
 sinks:
   console_out:
@@ -55,13 +44,14 @@ sinks:
     encoding:
       codec: json
     inputs:
-      - set_route_arena_logs
-      - set_route_chat
+      - set_route_search_arena
+      - set_route_fastchat
+
   file_out:
     type: file
     inputs:
-      - set_route_arena_logs
-      - set_route_chat
+      - set_route_search_arena
+      - set_route_fastchat
     path: "./local_logs/{{route}}/year=%Y/month=%m/day=%d/vector-%Y-%m-%d-%H.log"
     encoding:
       codec: json
