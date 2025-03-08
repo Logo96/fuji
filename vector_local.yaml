@@ -14,7 +14,8 @@ transforms:
     inputs:
       - in
     source: |
-      .message = parse_json!(string!(.message))
+      .message = parse_json!(.message)
+      .source = .message.source
 
   router:
     type: route
@@ -46,7 +47,6 @@ sinks:
     inputs:
       - set_route_search_arena
       - set_route_fastchat
-
   file_out:
     type: file
     inputs:

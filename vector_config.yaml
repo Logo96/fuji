@@ -45,12 +45,6 @@ transforms:
 
 sinks:
   console_out:
-    type: console
-    encoding:
-      codec: json
-    inputs:
-      - sample
-
   out:
     type: gcp_cloud_storage
     inputs:
