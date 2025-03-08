@@ -13,20 +13,31 @@ transforms:
     source: |
       .message = parse_json!(.message) # Parses the 'message' field without restructuring
 
+  normalize_logs:
+    type: remap
+    inputs:
+      - parse_json
+    source: |
+      if exists(.request_id) {
+        .log_type = "chat"
+      } else {
+        .log_type = "arena"
+      }
+
   router:
     type: route
     inputs:
-      - parse_json
+      - normalize_logs
     route:
-      voting_logs: '.message.type == "leftvote" || .message.type == "rightvote" || .message.type == "tievote" || .message.type == "bothbad_vote"'
-      chat_logs: 'exists(.message.request_id)'
+      arena_logs: '.log_type == "arena"'
+      chat_logs: '.log_type == "chat"'
 
-  set_route_voting:
+  set_route_arena_logs:
     type: remap
     inputs:
-      - router.voting_logs
+      - router.arena_logs
     source: |
-      .route = "voting"
+      .route = "arena_logs"
 
   set_route_chat:
     type: remap
@@ -38,9 +49,9 @@ transforms:
   sample:
     type: sample
     inputs:
-      - set_route_voting
+      - set_route_arena_logs
       - set_route_chat
-    rate: 1 # 1 out of 1 events will be passed through
+    rate: 1
 
 sinks:
   console_out:
@@ -53,7 +64,7 @@ sinks:
   out:
     type: gcp_cloud_storage
     inputs:
-      - set_route_voting
+      - set_route_arena_logs
       - set_route_chat
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:

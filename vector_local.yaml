@@ -14,24 +14,33 @@ transforms:
     inputs:
       - in
     source: |
-      message_json = parse_json!(del(.message))
-      request_metadata = .
-      . = { "message": message_json, "request_metadata": request_metadata }
+      .message = parse_json!(string!(.message))
+
+  normalize_logs:
+    type: remap
+    inputs:
+      - parse_json
+    source: |
+      if exists(.request_id) {
+        .log_type = "chat"
+      } else {
+        .log_type = "arena"
+      }
 
   router:
     type: route
     inputs:
-      - parse_json
+      - normalize_logs
     route:
-      voting_logs: '.message.type == "leftvote" || .message.type == "rightvote" || .message.type == "tievote" || .message.type == "bothbad_vote"'
-      chat_logs: 'exists(.message.request_id)'
+      arena_logs: '.log_type == "arena"'
+      chat_logs: '.log_type == "chat"'
 
-  set_route_voting:
+  set_route_arena_logs:
     type: remap
     inputs:
-      - router.voting_logs
+      - router.arena_logs
     source: |
-      .route = "voting"
+      .route = "arena_logs"
 
   set_route_chat:
     type: remap
@@ -46,13 +55,12 @@ sinks:
     encoding:
       codec: json
     inputs:
-      - set_route_voting
+      - set_route_arena_logs
       - set_route_chat
-
   file_out:
     type: file
     inputs:
-      - set_route_voting
+      - set_route_arena_logs
       - set_route_chat
     path: "./local_logs/{{route}}/year=%Y/month=%m/day=%d/vector-%Y-%m-%d-%H.log"
     encoding:
