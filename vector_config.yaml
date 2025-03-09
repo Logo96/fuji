@@ -18,8 +18,8 @@ transforms:
     inputs:
       - parse_json
     route:
-      fastchat_logs: '.message.type == "leftvote" || .message.type == "rightvote" || .message.type == "tievote" || .message.type == "bothbad_vote"'
-      search_arena_logs: 'exists(.message.request_id)'
+      fastchat_logs: '.message.source == "fastchat"'
+      search_arena_logs: '.message.source == "search-arena"'
 
   set_route_fastchat:
     type: remap
