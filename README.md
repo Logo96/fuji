@@ -15,12 +15,17 @@ To deploy:
 
 ## How to deploy to cloud
 
-Easiest way to deploy is to build a docker image and deploy to your personal dockerhob account. Once deployed you can run the deploy shell script and fill in the env variables.
+Easiest way to deploy is to build a docker image and deploy to your personal dockerhub account. Once deployed you can run the deploy shell script and fill in the env variables.
 
-1. export GIT_SHA=$(git rev-parse --short HEAD)
-2. IMAGE_TAG="$DOCKERHUB_USERNAME/fuji:sha-$GIT_SHA"
-3. docker build -t $IMAGE_TAG .
-4. docker push $IMAGE_TAG
-5. ./deploy.sh
+```
+export GIT_SHA=$(git rev-parse --short HEAD)
+IMAGE_TAG="$DOCKERHUB_USERNAME/fuji:sha-$GIT_SHA"
+```
+```
+docker build -t $IMAGE_TAG .
+docker push $IMAGE_TAG
+```
 
-
+```
+./deploy.sh
+```
