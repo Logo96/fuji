@@ -9,6 +9,7 @@ TABLE_NAME=${TABLE_NAME:-$(read -p "Enter your table name: " TABLE_NAME && echo 
 
 REGION="us-central1"
 GIT_SHA=$(git rev-parse --short HEAD)
+echo "GIT_SHA: $GIT_SHA"
 IMAGE_TAG=sha-$GIT_SHA
 
 # Initialize VECTOR_ROUTES as empty
