@@ -11,36 +11,37 @@ transforms:
     inputs:
       - in
     source: |
-      .message = parse_json!(.message) # Parses the 'message' field without restructuring
+      .message = parse_json!(.message)
+      .source = .message.source
 
   router:
     type: route
     inputs:
       - parse_json
     route:
-      voting_logs: '.message.type == "leftvote" || .message.type == "rightvote" || .message.type == "tievote" || .message.type == "bothbad_vote"'
-      chat_logs: 'exists(.message.request_id)'
+      search_arena_logs: '.source == "search-arena"'
+      fastchat_logs: '.source == "fastchat"'
 
-  set_route_voting:
+  set_route_search_arena:
     type: remap
     inputs:
-      - router.voting_logs
+      - router.search_arena_logs
     source: |
-      .route = "voting"
+      .route = "search_arena"
 
-  set_route_chat:
+  set_route_fastchat:
     type: remap
     inputs:
-      - router.chat_logs
+      - router.fastchat_logs
     source: |
-      .route = "chat"
+      .route = "fastchat"
 
   sample:
     type: sample
     inputs:
-      - set_route_voting
-      - set_route_chat
-    rate: 1 # 1 out of 1 events will be passed through
+      - set_route_search_arena
+      - set_route_fastchat
+    rate: 1
 
 sinks:
   console_out:
@@ -49,12 +50,11 @@ sinks:
       codec: json
     inputs:
       - sample
-
   out:
     type: gcp_cloud_storage
     inputs:
-      - set_route_voting
-      - set_route_chat
+      - set_route_search_arena
+      - set_route_fastchat
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
       codec: json
