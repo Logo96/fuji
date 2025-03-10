@@ -23,7 +23,7 @@ transforms:
     route:
       fastchat_logs: '.source == "fastchat"'
       search_arena_logs: '.source == "search-arena"'
-      unmatched: '!((.source == "fastchat") or (.source == "search-arena"))'
+      unmatched: '((.source != "fastchat") && (.source != "search-arena"))'
 
   set_route_fastchat:
     type: remap
