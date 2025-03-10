@@ -14,7 +14,7 @@ transforms:
       # Parse the JSON string in the "message" field
       .message = parse_json!(.message)
       # Copy the "source" field from the parsed message to the top level
-      .source = .message.source
+      .source = get!(.message, "source") ?? "unknown"
 
   router:
     type: route
@@ -23,7 +23,7 @@ transforms:
     route:
       fastchat_logs: '.source == "fastchat"'
       search_arena_logs: '.source == "search-arena"'
-      unmatched: 'true'
+      unmatched: '.source != "fastchat" && .source != "search-arena"'
 
   set_route_fastchat:
     type: remap
