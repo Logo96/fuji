@@ -21,9 +21,11 @@ transforms:
     inputs:
       - parse_message
     route:
-      fastchat_logs: '.source == "fastchat"'
-      search_arena_logs: '.source == "search-arena"'
-      unmatched: '((.source != "fastchat") && (.source != "search-arena"))'
+      fastchat_logs: '.source == "fastchat-prod"'
+      fastchat_logs_dev: '.source == "fastchat-dev"'
+      search_arena_logs: '.source == "search-arena-prod"'
+      search_arena_logs_dev: '.source == "search-arena-dev"'
+      unmatched: '((.source != "fastchat-prod") && (.source != "search-arena-prod") && (.source != "fastchat-dev") && (.source != "search-arena-dev"))'
 
   set_route_fastchat:
     type: remap
@@ -31,6 +33,13 @@ transforms:
       - router.fastchat_logs
     source: |
       .route = "fastchat"
+  
+  set_route_fastchat_dev:
+    type: remap
+    inputs:
+      - router.fastchat_logs_dev
+    source: |
+      .route = "fastchat_dev"
 
   set_route_search_arena:
     type: remap
@@ -38,6 +47,13 @@ transforms:
       - router.search_arena_logs
     source: |
       .route = "search-arena"
+  
+  set_route_search_arena_dev:
+    type: remap
+    inputs:
+      - router.search_arena_logs_dev
+    source: |
+      .route = "search-arena_dev"
 
   set_route_unmatched:
     type: remap
@@ -50,7 +66,9 @@ transforms:
     type: sample
     inputs:
       - set_route_fastchat
+      - set_route_fastchat_dev
       - set_route_search_arena
+      - set_route_search_arena_dev
       - set_route_unmatched
     rate: 1
 
@@ -67,7 +85,9 @@ sinks:
     type: gcp_cloud_storage
     inputs:
       - set_route_fastchat
+      - set_route_fastchat_dev
       - set_route_search_arena
+      - set_route_search_arena_dev
       - set_route_unmatched
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
