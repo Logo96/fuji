@@ -25,7 +25,9 @@ transforms:
       fastchat_logs_dev: '.source == "fastchat-dev"'
       search_arena_logs: '.source == "search-arena-prod"'
       search_arena_logs_dev: '.source == "search-arena-dev"'
-      unmatched: '((.source != "fastchat-prod") && (.source != "search-arena-prod") && (.source != "fastchat-dev") && (.source != "search-arena-dev"))'
+      citations_logs: '.source == "citations-prod"'
+      citations_logs_dev: '.source == "citations-dev"'
+      unmatched: '((.source != "fastchat-prod") && (.source != "search-arena-prod") && (.source != "fastchat-dev") && (.source != "search-arena-dev")) && (.source != "citations-prod") && (.source != "citations-dev")'
 
   set_route_fastchat:
     type: remap
@@ -54,6 +56,20 @@ transforms:
       - router.search_arena_logs_dev
     source: |
       .route = "search-arena_dev"
+    
+  set_route_citations:
+    type: remap
+    inputs:
+      - router.citations_logs
+    source: |
+      .route = "citations"
+
+  set_route_citations_dev:
+    type: remap
+    inputs:
+      - router.citations_logs_dev
+    source: |
+      .route = "citations_dev"
 
   set_route_unmatched:
     type: remap
@@ -69,6 +85,8 @@ transforms:
       - set_route_fastchat_dev
       - set_route_search_arena
       - set_route_search_arena_dev
+      - set_route_citations
+      - set_route_citations_dev
       - set_route_unmatched
     rate: 1
 
@@ -88,6 +106,8 @@ sinks:
       - set_route_fastchat_dev
       - set_route_search_arena
       - set_route_search_arena_dev
+      - set_route_citations
+      - set_route_citations_dev
       - set_route_unmatched
     bucket: ${GCS_BUCKET_NAME:?the bucket name must be supplied via GCS_BUCKET_NAME env var}
     encoding:
